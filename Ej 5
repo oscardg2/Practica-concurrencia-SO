@@ -1,0 +1,59 @@
+#define _POSIX_C_SOURCE 200112L
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h> // Para INT_MAX
+#include <string.h>
+
+int* my_stack_read(const char* filename, int* size); 
+
+int main(int argc, char* argv[]) {
+    if (argc != 2) {
+        fprintf(stderr, "Uso: %s <nombre_fichero>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    const char* filename = argv[1];
+    int* stack;       // Puntero para almacenar los elementos de la pila
+    int size = 0;     // Tamaño de la pila
+
+    // Leer la pila desde el fichero
+    stack = my_stack_read(filename, &size);
+    if (stack == NULL) {
+        fprintf(stderr, "Error al leer la pila desde el fichero.\n");
+        return EXIT_FAILURE;
+    }
+
+    // Variables para las estadísticas
+    int suma = 0;
+    int min = INT_MAX; // Inicializamos con el máximo valor posible
+    int max = INT_MIN; // Inicializamos con el mínimo valor posible
+    double media = 0.0;
+
+    printf("Elementos de la pila:\n");
+    
+    // Recorrer la pila en un solo bucle
+    for (int i = 0; i < size; i++) {
+        int value = stack[i]; // Valor actual de la pila
+        printf("Elemento %d: %d\n", i, value);
+
+        // Actualizar estadísticas
+        suma += value;
+        if (value < min) min = value;
+        if (value > max) max = value;
+    }
+
+    // Calcular la media
+    media = (double)suma / size;
+
+    // Imprimir estadísticas
+    printf("\nEstadísticas de la pila:\n");
+    printf("Suma: %d\n", suma);
+    printf("Mínimo: %d\n", min);
+    printf("Máximo: %d\n", max);
+    printf("Media: %.2f\n", media);
+
+    // Liberar memoria
+    free(stack);
+
+    return EXIT_SUCCESS;
+}
