@@ -1,59 +1,72 @@
-#define _POSIX_C_SOURCE 200112L
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h> // Para INT_MAX
-#include <string.h>
+#include "my_lib.h" // Incluye las definiciones de my_stack y funciones asociadas
 
-int* my_stack_read(const char* filename, int* size); 
-
-int main(int argc, char* argv[]) {
-    if (argc != 2) {
-        fprintf(stderr, "Uso: %s <nombre_fichero>\n", argv[0]);
-        return EXIT_FAILURE;
-    }
-
-    const char* filename = argv[1];
-    int* stack;       // Puntero para almacenar los elementos de la pila
-    int size = 0;     // Tamaño de la pila
-
-    // Leer la pila desde el fichero
-    stack = my_stack_read(filename, &size);
+// Función para procesar la pila y calcular los valores requeridos
+void process_stack(struct my_stack *stack) {
     if (stack == NULL) {
-        fprintf(stderr, "Error al leer la pila desde el fichero.\n");
-        return EXIT_FAILURE;
+        fprintf(stderr, "Error: La pila es nula.\n");
+        return;
     }
 
-    // Variables para las estadísticas
-    int suma = 0;
-    int min = INT_MAX; // Inicializamos con el máximo valor posible
-    int max = INT_MIN; // Inicializamos con el mínimo valor posible
-    double media = 0.0;
+    int count = 0;
+    int sum = 0;
+    int min = INT_MAX;
+    int max = INT_MIN;
 
-    printf("Elementos de la pila:\n");
-    
-    // Recorrer la pila en un solo bucle
-    for (int i = 0; i < size; i++) {
-        int value = stack[i]; // Valor actual de la pila
-        printf("Elemento %d: %d\n", i, value);
+    while (stack->top != NULL) {
+        // Extraer el nodo superior
+        int *data = (int *)my_stack_pop(stack);
+        if (data == NULL) {
+            fprintf(stderr, "Error: Nodo vacío en la pila.\n");
+            continue;
+        }
 
-        // Actualizar estadísticas
-        suma += value;
-        if (value < min) min = value;
-        if (value > max) max = value;
+        // Calcular suma, mínimo y máximo
+        sum += *data;
+        if (*data < min) min = *data;
+        if (*data > max) max = *data;
+
+        // Contar el nodo
+        count++;
+
+        // Liberar memoria del dato
+        free(data);
     }
 
-    // Calcular la media
-    media = (double)suma / size;
+    // Calcular y mostrar la media
+    double average = (count > 0) ? (double)sum / count : 0;
 
-    // Imprimir estadísticas
-    printf("\nEstadísticas de la pila:\n");
-    printf("Suma: %d\n", suma);
+    printf("Resultados:\n");
+    printf("Suma: %d\n", sum);
     printf("Mínimo: %d\n", min);
     printf("Máximo: %d\n", max);
-    printf("Media: %.2f\n", media);
+    printf("Media: %.2f\n", average);
+}
 
-    // Liberar memoria
-    free(stack);
+int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        fprintf(stderr, "Uso: %s <nombre_del_archivo>\n", argv[0]);
+        return 1;
+    }
 
-    return EXIT_SUCCESS;
+    char *filename = argv[1];
+
+    // Leer la pila desde el archivo
+    struct my_stack *stack = my_stack_read(filename);
+    if (stack == NULL) {
+        fprintf(stderr, "Error al leer la pila desde el archivo.\n");
+        return 1;
+    }
+
+    printf("Procesando la pila desde el archivo '%s'...\n", filename);
+
+    // Procesar la pila
+    process_stack(stack);
+
+    // Liberar toda la memoria asociada a la pila
+    my_stack_purge(stack);
+
+    return 0;
 }
