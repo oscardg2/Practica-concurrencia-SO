@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
 
     if (!stack) {
         printf("Pila no encontrada. Creando una nueva...\n");
-        stack = my_stack_init(NUM_THREADS);
+        stack = my_stack_init(sizeof(int));
         if (!stack) {
             fprintf(stderr, "Error al inicializar la pila.\n");
             return EXIT_FAILURE;
