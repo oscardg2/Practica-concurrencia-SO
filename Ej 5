@@ -1,4 +1,4 @@
-#include <stdio.h>
+    #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h> // Para INT_MAX
 #include "my_lib.h" // Incluye las definiciones de my_stack y funciones asociadas
@@ -15,12 +15,21 @@ void process_stack(struct my_stack *stack) {
     int min = INT_MAX;
     int max = INT_MIN;
 
+     // Definimos un array para almacenar los IDs de los hilos
+    int hilos[10];
+    int hilo_index = 0; // Índice para los hilos
+
     while (stack->top != NULL) {
         // Extraer el nodo superior
         int *data = (int *)my_stack_pop(stack);
         if (data == NULL) {
             fprintf(stderr, "Error: Nodo vacío en la pila.\n");
             continue;
+        }
+
+        // Almacenar el ID del hilo en el array de hilos
+        if (hilo_index < 10) { // Aseguramos que no exceda el tamaño del array
+            hilos[hilo_index++] = *data;
         }
 
         // Calcular suma, mínimo y máximo
@@ -38,6 +47,12 @@ void process_stack(struct my_stack *stack) {
     // Calcular y mostrar la media
     double average = (count > 0) ? (double)sum / count : 0;
 
+    printf("Resultados:\n");
+    printf("Stack length: %d\n", hilo_index);
+    for (int i = 0; i < hilo_index; i++) {
+        printf("%d\n", hilos[i]);
+    }
+    
     printf("Resultados:\n");
     printf("Suma: %d\n", sum);
     printf("Mínimo: %d\n", min);
